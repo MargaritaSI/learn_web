@@ -1,14 +1,19 @@
-from flask import Flask
+from flask import Flask, render_template
+
+from python_org_news import get_python_news
 from weather import weather_by_city
 
 app = Flask(__name__)
 
-@app.route("/") # браузер запросил главную страницу
-def index(): # обработчик гл страницы идет на сервер в файл weather и возвр погодау
+
+# the view function index() prepares the data for display
+@app.route("/")  # browser requested main page
+def index():  # handler of main page goes to server in a file 'weather' and returns weather
+    title = 'News page'
     weather = weather_by_city("Amsterdam,Netherlands")
-    if weather: # проверка что строка существует
-        return f"Now {weather['temp_C']}, feels like {weather['FeelsLikeC']}"
-    else:
-        return f'weather service currently is unavailable'
-if __name__=="__main__":
+    news_list = get_python_news() # send templates 'news'
+    return render_template('index.html', page_title= title, weather_text=weather, news=news_list) # flask searching dir 'templates' and then 'index.html
+
+
+if __name__ == "__main__":
     app.run(debug=True)
