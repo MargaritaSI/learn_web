@@ -1,13 +1,14 @@
+from flask import current_app # current_app allows to access the current application
 import requests
 
 def weather_by_city(city_name):
-    weather_url = "http://api.worldweatheronline.com/premium/v1/weather.ashx"
+    weather_url = current_app.config['WEATHER_URL']
     params = {
-        "key": "7ad555c0476e4f82b2c201425222405",
+        "key": current_app.config['WEATHER_API_KEY'], # take weather from config.py
         "q": city_name,
         "format": "json",
         "num_of_days": 1,
-        "lang": "en",
+        "lang": "en"
     }
     try:
         result = requests.get(weather_url, params=params)
