@@ -11,26 +11,10 @@
     <title>{{ page_title }}</title>
   </head>
   <body>
+    {% include 'menu.html' %} <!-- for bootstrap's menu -->
     <div class = 'container'> <!-- main body of our site + more centre position in page-->
     <h1>{{ page_title}}</h1>
-    <div class="row">
-        <div class="col-8">
-            <h2>news</h2>
-            {% for new in news %}
-            <h3><a href="{{ new.url }}">{{ new.title }}</a></h3> <!-- a href is in dictionary 'news' (cycle 'for') +url) -->
-            <p>{{ new.published.strftime('%d.%m.%Y') }}</p>
-            <hr />
-            {% endfor %}
-        </div>
-        <div class="col-4">
-            <h2> weather forecast </h2>
-            {% if weather_text %}
-                weather now: {{ weather_text.temp_C }}, feels like {{ weather_text.FeelsLikeC }}
-            {% else %}
-                weather service currently is unavailable
-            {% endif %}
-        </div>
-    </div>
+    {% block content %}{% endblock %} <!-- when I when i inherit from this block then this line is replaced with real content -->
     </div>
 
     <!-- Optional JavaScript -->

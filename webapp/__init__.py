@@ -1,31 +1,38 @@
-from flask import Flask, render_template
+from flask import Flask, flash, render_template, redirect, url_for
+''' flash-send messages between routes, redirect-redirects the user to another page, 
+url_for-helps to get the url by the name of the function that processes this url  '''
 
-from webapp.forms import LoginForm
-from webapp.model import db, News # link model with flask
-from webapp.weather import weather_by_city
+from flask_login import LoginManager # LoginManager -managing login process
+
+from webapp.db import db  # link model with flask
+from webapp.admin.views import blueprint as admin_blueprint # for connect blueprint with application
+from webapp.news.views import blueprint as news_blueprint
+from webapp.user.models import User  # link model with flask
+from webapp.user.views import blueprint as user_blueprint # for connect blueprint with application
+from webapp.weatherhere import weather_by_city
 
 
-def create_app(): # creat fabric function -creates and initializes flask application object
+def create_app():  # creat fabric function -creates and initializes flask application object
     app = Flask(__name__)
-    app.config.from_pyfile('config.py') #take configureation file
-    db.init_app(app) # initializing the database, after steps #1 'app' must be created and #2 pick up 'app.configuration..'
+
+    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config.from_pyfile('config.py')  # take configureation file
+    db.init_app(app)  # initializing the database, after steps #1 'app' must be created and #2 pick up 'app.configuration..'
+
+    login_manager = LoginManager()  #
+    login_manager.init_app(app)
+    login_manager.login_view = 'user.login'  # this is how will called function def 'login'
+    app.register_blueprint(user_blueprint) # regisrtation blueprint for connection with application
+    app.register_blueprint(admin_blueprint) # regisrtation blueprint
+    app.register_blueprint(news_blueprint)
+
+    @login_manager.user_loader  # every time on open page login_manager takes cookes user_id and send it to 'load_user'
+    def load_user(user_id):  # take user with id
+        return User.query.get(user_id)  # ask database with id_user - object user for work
 
     '''@app.route() регистрирует URL-адрес, по которому будет доступно соответствующее представление (расположенное под декоратором),
     а так же правила маршрутизации(механизм сопоставления URL-адреса непосредственно с кодом, который создает веб-страницу.) входящих запросов. Этот декоратор вызывает метод app.'''
-    @app.route("/")  # browser requested main page
-    # the view function index() prepares the data for display
-    def index():  # handler of main page goes to server in a file 'weather' and returns weather
-        title = 'News page'
-        weather = weather_by_city("app.config['WEATHER_DEFAULT_CITY']") # take city from config.py
-        news_list = News.query.order_by(News.published.desc()).all() # take all news from database (don't use 'filter'), sorted with field News.published, desc=revers order
-        return render_template('index.html', page_title= title, weather_text=weather, news=news_list) # flask searching dir 'templates' and then 'index.html
-
-    @app.route('/login') #
-    def login():
-        title = 'Autorization'
-        login_form = LoginForm() # create object of Class
-        return render_template('login.html', page_title = title, form = login_form) # takes a template, substitutes data there and passes it to the browser
-
-    return app # return flask application
 
 
+
+    return app  # return flask application

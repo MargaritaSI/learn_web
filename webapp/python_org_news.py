@@ -3,7 +3,8 @@ from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 
-from webapp.model import db, News
+from webapp.db import db
+from webapp.news.models import News
 
 def get_html(url):  # requesting html news data from site
     try:
@@ -26,7 +27,7 @@ def get_python_news(): # take html elements tree from -> html
             url = news.find('a')['href'] # tied to 'a'['href'] + call like to dictionary key
             published = news.find('time').text # tied to 'time' and call like to property
             try:
-                published = datetime.strptime(published, '%Y-%m-%d') # strptime parses published to the desired format(-,-,-)
+                published = datetime.strptime(published, '%B-%d-%Y') # strptime parses published to the desired format(-,-,-)
             except ValueError:
                 published = datetime.now() # if format data poblished != datetime -> return datetime.now()
             save_news(title, url, published)

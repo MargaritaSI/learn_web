@@ -1,0 +1,31 @@
+{% extends 'base.html' %} <!-- this file inheritances from base.html -->
+
+{% block content %} <!-- after inheritance index from base - base loads and parts will be replaced -->
+    <div class="row">
+        <div class="col-8">
+            {% with messages = get_flashed_messages() %}
+            {% if messages %}
+            <div class="alert alert-warning" role="alert">
+                {% for message in messages %}
+                    {{ message }}<br>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+            <h2>news</h2>
+            {% for new in news %}
+            <h3><a href="{{ new.url }}">{{ new.title }}</a></h3> <!-- a href is in dictionary 'news' (cycle 'for') +url -->
+            <p>{{ new.published.strftime('%d.%m.%Y') }}</p>
+            <hr />
+            {% endfor %}
+        </div>
+        <div class="col-4">
+            <h2> weather forecast </h2>
+            {% if weather_text %}
+                weather now: {{ weather_text.temp }}, feels like {{ weather_text.feels_like }}
+            {% else %}
+                weather service currently is unavailable
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
